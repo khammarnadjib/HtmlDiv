@@ -1,0 +1,37 @@
+Payment Messages Toggle HTML =
+VAR _Active = [Payment Messages Active]
+
+VAR _TrackColor =
+    IF(_Active = 1, "#22C55E", "#BFC3C7")
+
+VAR _KnobColor = "#FFFFFF"
+
+VAR _Width = 56
+VAR _Height = 30
+VAR _KnobSize = 24
+VAR _Radius = 15
+
+VAR _KnobPosition =
+    IF(_Active = 1, 28, 4)
+
+RETURN
+    "<div style='
+        width:" & _Width & "px;
+        height:" & _Height & "px;
+        background-color:" & _TrackColor & ";
+        border-radius:" & _Radius & "px;
+        position:relative;
+        box-sizing:border-box;
+        transition:background-color 0.2s ease;
+    '>
+        <div style='
+            position:absolute;
+            top:3px;
+            left:" & _KnobPosition & "px;
+            width:" & _KnobSize & "px;
+            height:" & _KnobSize & "px;
+            background-color:" & _KnobColor & ";
+            border-radius:50%;
+            box-shadow:0 1px 3px rgba(0,0,0,0.25);
+        '></div>
+    </div>"
