@@ -1,33 +1,18 @@
 Nb Rows =
 VAR MaxDate =
-    SELECTEDVALUE(
-        'Date selector (reporting)'[Date reporting]
-    )
-
-VAR DefaultStart =
-    EDATE(MaxDate, -13)
+    MAX('Date selector (reporting)'[Date reporting])
 
 VAR SelectedEffectStart =
     MINX(
-        ALLSELECTED(
-            'Date selector (date effect)'[Date effet]
-        ),
+        ALLSELECTED('Date selector (date effect)'[Date effet]),
         'Date selector (date effect)'[Date effet]
     )
 
 VAR SelectedEffectEnd =
     MAXX(
-        ALLSELECTED(
-            'Date selector (date effect)'[Date effet]
-        ),
+        ALLSELECTED('Date selector (date effect)'[Date effet]),
         'Date selector (date effect)'[Date effet]
     )
-
-VAR EffectiveStart =
-    MAX(DefaultStart, SelectedEffectStart)
-
-VAR EffectiveEnd =
-    MIN(MaxDate, SelectedEffectEnd)
 
 VAR SensitiveRAFs =
     CALCULATETABLE(
@@ -38,24 +23,20 @@ VAR SensitiveRAFs =
     )
 
 RETURN
-    IF(
-        ISBLANK(MaxDate)
-            || EffectiveStart > EffectiveEnd,
-        BLANK(),
-        CALCULATE(
-            COUNTROWS('CPS Accounting'),
-            REMOVEFILTERS('Tethys Code'),
-            REMOVEFILTERS('CPS Accounting'[Date effet]),
-            FILTER(
-                ALL('CPS Accounting'[Date effet]),
-                'CPS Accounting'[Date effet] >= EffectiveStart
-                    && 'CPS Accounting'[Date effet] <= EffectiveEnd
-            ),
-            KEEPFILTERS(
-                TREATAS(
-                    SensitiveRAFs,
-                    'CPS Accounting'[Customer RAF]
-                )
+    CALCULATE(
+        COUNTROWS('CPS Accounting'),
+        REMOVEFILTERS('Tethys Code'),
+        REMOVEFILTERS('CPS Accounting'[Date effet]),
+        FILTER(
+            ALL('CPS Accounting'[Date effet]),
+            'CPS Accounting'[Date effet] >= SelectedEffectStart
+                && 'CPS Accounting'[Date effet] <= SelectedEffectEnd
+                && 'CPS Accounting'[Date effet] <= MaxDate
+        ),
+        KEEPFILTERS(
+            TREATAS(
+                SensitiveRAFs,
+                'CPS Accounting'[Customer RAF]
             )
         )
     )
