@@ -1,33 +1,37 @@
-Debug Date Period =
+Is In Display Period =
 VAR ReportingDate =
-    SELECTEDVALUE(
+    MAX(
         'Date selector (reporting)'[Date reporting]
     )
 
-VAR StartDate =
-    EDATE(ReportingDate, -13)
-
 VAR SelectedStart =
-    MINX(
-        ALLSELECTED(
-            'Date selector (date effect)'[Date effet]
-        ),
+    MIN(
         'Date selector (date effect)'[Date effet]
     )
 
 VAR SelectedEnd =
-    MAXX(
-        ALLSELECTED(
-            'Date selector (date effect)'[Date effet]
-        ),
+    MAX(
         'Date selector (date effect)'[Date effet]
     )
 
+VAR DefaultStart =
+    EDATE(ReportingDate, -13)
+
+VAR EffectiveStart =
+    MAX(DefaultStart, SelectedStart)
+
+VAR EffectiveEnd =
+    MIN(ReportingDate, SelectedEnd)
+
+VAR RowDate =
+    MAX('CPS Accounting'[Date effet])
+
 RETURN
-    FORMAT(StartDate, "dd/MM/yyyy")
-        & " au "
-        & FORMAT(ReportingDate, "dd/MM/yyyy")
-        & " | Sélection : "
-        & FORMAT(SelectedStart, "dd/MM/yyyy")
-        & " au "
-        & FORMAT(SelectedEnd, "dd/MM/yyyy")
+    IF(
+        NOT ISBLANK(ReportingDate)
+            && NOT ISBLANK(RowDate)
+            && RowDate >= EffectiveStart
+            && RowDate <= EffectiveEnd,
+        1,
+        0
+    )
