@@ -1,21 +1,17 @@
 Is In Display Period =
 VAR ReportingDate =
-    MAX(
+    SELECTEDVALUE(
         'Date selector (reporting)'[Date reporting]
-    )
-
-VAR SelectedStart =
-    MIN(
-        'Date selector (date effect)'[Date effet]
-    )
-
-VAR SelectedEnd =
-    MAX(
-        'Date selector (date effect)'[Date effet]
     )
 
 VAR DefaultStart =
     EDATE(ReportingDate, -13)
+
+VAR SelectedStart =
+    MIN('Date selector (date effect)'[Date effet])
+
+VAR SelectedEnd =
+    MAX('Date selector (date effect)'[Date effet])
 
 VAR EffectiveStart =
     MAX(DefaultStart, SelectedStart)
@@ -23,15 +19,32 @@ VAR EffectiveStart =
 VAR EffectiveEnd =
     MIN(ReportingDate, SelectedEnd)
 
-VAR RowDate =
-    MAX('CPS Accounting'[Date effet])
+VAR DatesToApply =
+    FILTER(
+        ALL('Date selector (date effect)'[Date effet]),
+        'Date selector (date effect)'[Date effet]
+            >= EffectiveStart
+            &&
+        'Date selector (date effect)'[Date effet]
+            <= EffectiveEnd
+    )
+
+VAR MatchingRows =
+    CALCULATE(
+        COUNTROWS('CPS Accounting'),
+        KEEPFILTERS(
+            TREATAS(
+                DatesToApply,
+                'CPS Accounting'[Date effet]
+            )
+        )
+    )
 
 RETURN
     IF(
         NOT ISBLANK(ReportingDate)
-            && NOT ISBLANK(RowDate)
-            && RowDate >= EffectiveStart
-            && RowDate <= EffectiveEnd,
+            && EffectiveStart <= EffectiveEnd
+            && MatchingRows > 0,
         1,
         0
     )
