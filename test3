@@ -1,4 +1,4 @@
-Show RAF Transaction =
+Debug Date Period =
 VAR ReportingDate =
     SELECTEDVALUE(
         'Date selector (reporting)'[Date reporting]
@@ -7,34 +7,27 @@ VAR ReportingDate =
 VAR StartDate =
     EDATE(ReportingDate, -13)
 
-VAR TransactionDate =
-    SELECTEDVALUE(
-        'CPS Accounting'[Date effet]
-    )
-
-VAR SelectedDates =
-    VALUES(
+VAR SelectedStart =
+    MINX(
+        ALLSELECTED(
+            'Date selector (date effect)'[Date effet]
+        ),
         'Date selector (date effect)'[Date effet]
     )
 
-VAR IsDateSelected =
-    CONTAINS(
-        SelectedDates,
-        'Date selector (date effect)'[Date effet],
-        TransactionDate
+VAR SelectedEnd =
+    MAXX(
+        ALLSELECTED(
+            'Date selector (date effect)'[Date effet]
+        ),
+        'Date selector (date effect)'[Date effet]
     )
-
-VAR IsSensitive =
-    [Is Sensitive RAF on Max Date]
 
 RETURN
-    IF(
-        NOT ISBLANK(ReportingDate)
-            && NOT ISBLANK(TransactionDate)
-            && TransactionDate >= StartDate
-            && TransactionDate <= ReportingDate
-            && IsDateSelected
-            && IsSensitive = 1,
-        1,
-        0
-    )
+    FORMAT(StartDate, "dd/MM/yyyy")
+        & " au "
+        & FORMAT(ReportingDate, "dd/MM/yyyy")
+        & " | Sélection : "
+        & FORMAT(SelectedStart, "dd/MM/yyyy")
+        & " au "
+        & FORMAT(SelectedEnd, "dd/MM/yyyy")
