@@ -1,28 +1,3 @@
-Show Date Effect =
-VAR ReportingDate =
-    SELECTEDVALUE(
-        'Date selector (reporting)'[Date reporting]
-    )
-
-VAR CurrentDate =
-    SELECTEDVALUE(
-        'Date selector (date effect)'[Date effect]
-    )
-
-VAR StartDate =
-    EDATE(ReportingDate, -13)
-
-RETURN
-    IF(
-        NOT ISBLANK(ReportingDate)
-            && NOT ISBLANK(CurrentDate)
-            && CurrentDate >= StartDate
-            && CurrentDate <= ReportingDate,
-        1,
-        0
-    )
-
-
 Show RAF Transaction =
 VAR ReportingDate =
     SELECTEDVALUE(
@@ -34,20 +9,23 @@ VAR StartDate =
 
 VAR TransactionDate =
     SELECTEDVALUE(
-        'CPS Accounting'[Date effect]
+        'CPS Accounting'[Date effet]
     )
 
 VAR SelectedDates =
     VALUES(
-        'Date selector (date effect)'[Date effect]
+        'Date selector (date effect)'[Date effet]
     )
 
 VAR IsDateSelected =
     CONTAINS(
         SelectedDates,
-        'Date selector (date effect)'[Date effect],
+        'Date selector (date effect)'[Date effet],
         TransactionDate
     )
+
+VAR IsSensitive =
+    [Is Sensitive RAF on Max Date]
 
 RETURN
     IF(
@@ -55,7 +33,8 @@ RETURN
             && NOT ISBLANK(TransactionDate)
             && TransactionDate >= StartDate
             && TransactionDate <= ReportingDate
-            && IsDateSelected,
+            && IsDateSelected
+            && IsSensitive = 1,
         1,
         0
     )
