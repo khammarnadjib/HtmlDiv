@@ -1,0 +1,40 @@
+Show RAF Transaction =
+VAR ReportingDate =
+    SELECTEDVALUE(
+        'Date selector (reporting)'[Date reporting]
+    )
+
+VAR StartDate =
+    EDATE(ReportingDate, -13)
+
+VAR TransactionDate =
+    SELECTEDVALUE(
+        'CPS Accounting'[Date effect]
+    )
+
+VAR SelectedDates =
+    VALUES(
+        'Date selector (date effect)'[Date effect]
+    )
+
+VAR IsDateSelected =
+    CONTAINS(
+        SelectedDates,
+        'Date selector (date effect)'[Date effect],
+        TransactionDate
+    )
+
+VAR IsSensitive =
+    [Is Sensitive RAF on Max Date]
+
+RETURN
+    IF(
+        NOT ISBLANK(ReportingDate)
+            && NOT ISBLANK(TransactionDate)
+            && TransactionDate >= StartDate
+            && TransactionDate <= ReportingDate
+            && IsDateSelected
+            && IsSensitive = 1,
+        1,
+        0
+    )
