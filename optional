@@ -1,0 +1,47 @@
+Is RAF In Display Period =
+VAR ReportingDate =
+    MAX('Date selector (reporting)'[Date reporting])
+
+VAR SelectedEffectStart =
+    MIN('Date selector (date effect)'[Date effet])
+
+VAR SelectedEffectEnd =
+    MAX('Date selector (date effect)'[Date effet])
+
+VAR DefaultStart =
+    EDATE(ReportingDate, -13)
+
+VAR EffectiveStart =
+    MAX(DefaultStart, SelectedEffectStart)
+
+VAR EffectiveEnd =
+    MIN(ReportingDate, SelectedEffectEnd)
+
+VAR SensitiveRAFs =
+    CALCULATETABLE(
+        VALUES('Tethys Code'[Customer RAF Code]),
+        REMOVEFILTERS('Tethys Code'),
+        REMOVEFILTERS('CPS Accounting'),
+        'Tethys Code'[Date effect] = ReportingDate
+    )
+
+VAR MatchingRows =
+    CALCULATE(
+        COUNTROWS('CPS Accounting'),
+        REMOVEFILTERS('CPS Accounting'[Date effet]),
+        TREATAS(
+            SensitiveRAFs,
+            'CPS Accounting'[Customer RAF]
+        ),
+        'CPS Accounting'[Date effet] >= EffectiveStart,
+        'CPS Accounting'[Date effet] <= EffectiveEnd
+    )
+
+RETURN
+    IF(
+        NOT ISBLANK(ReportingDate)
+            && EffectiveStart <= EffectiveEnd
+            && MatchingRows > 0,
+        1,
+        0
+    )
